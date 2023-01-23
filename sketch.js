@@ -1,25 +1,29 @@
-let nombrecarrer = 6;
-let tc = window.innerWidth/nombrecarrer;
-let matrice = Array.from(Array(nombrecarrer), () => new Array(nombrecarrer));
-let force = 0.01;
-let i = 0;
-
+let Lcar = (window.innerWidth>850)?5:3; //nombre de carrer dans la longueur
+let Hcar = 10
+let tc = window.innerWidth/Lcar;
+let matrice = Array.from(Array(Hcar), () => new Array(Lcar));
+let force = 0.004;
+let tick = 0;
 
 function test(){window.location.reload();}
 
-
+function setup() {
+  createCanvas(tc*Lcar, tc*Hcar);
+  generate();
+  drawlines();
+}
 
 function rdm(x){
   return random(x*tc,x*tc+tc)
 }
 
 function rdmc(x,y){
-  return random(200,((x*y)*235)/(nombrecarrer*nombrecarrer))
+  return random(200,((x*y)*135)/(Lcar*Lcar))
 }
 
-function generate(){
-  for (let i = 0; i < nombrecarrer; i++) {
-    for (let j = 0; j < nombrecarrer; j++) {
+function generate(){ //genere et init les different vecteur pour la 1ere fois
+  for (let i = 0; i < Lcar; i++) {
+    for (let j = 0; j < Hcar; j++) {
       curx = i*tc;
       cury = j*tc;
       matrice[i][j] = [
@@ -39,30 +43,9 @@ function generate(){
   
 }
 
-function regen(){
-  for (let i = 0; i < nombrecarrer; i++) {
-    for (let j = 0; j < nombrecarrer; j++) {
-      curx = i*tc;
-      cury = j*tc;
-      matrice[i][j] = [
-        matrice[i][j][0],
-        matrice[i][j][1],
-        matrice[i][j][2],
-        createVector(curx, cury+random(0,tc)),
-        createVector(rdm(i), rdm(j)),
-        createVector(rdm(i), rdm(j)),
-        matrice[i][j][6],
-        [rdmc(i,j), rdmc(i,j), rdmc(i,j)],
-        [100,100,100]
-        
-      ]
-    }
-  }
-}
-
-function regenrdm(){
-  var i = parseInt(random(0,nombrecarrer));
-  var j = parseInt(random(0,nombrecarrer));
+function regenrdm(){ //regen un tableau aleatoirement
+  var i = parseInt(random(0,Lcar));
+  var j = parseInt(random(0,Hcar));
       curx = i*tc;
       cury = j*tc;
       matrice[i][j] = [
@@ -78,78 +61,69 @@ function regenrdm(){
       ]
 }
 
-function setup() {
-  createCanvas(tc*nombrecarrer, tc*nombrecarrer);
-  generate();
-  drawlines();
-}
+
 
 function draw() {
-  regenrdm();
-  for (let i = 0; i < nombrecarrer; i++) {
-    for (let j = 0; j < nombrecarrer; j++) {
-
-
-
+  tick++;
+  if(tick>(Lcar*Hcar)/5){
+    tick = 0;
+    regenrdm();
+  }
+  for (let i = 0; i < Lcar; i++) {
+    for (let j = 0; j < Hcar; j++) {
 
 
       //dessine le gradient en dessous de la courbe
 
       beginShape();
       noStroke();
-      if(j+1<nombrecarrer){
+      if(j+1<Hcar){
       fillGradient('linear', {
-        from : [i*tc+(tc/2),j*tc+(tc/2)],   // x, y : Coordinates
+        from : [i*tc+(tc/2),j*tc+(tc/1.5)],   // x, y : Coordinates
         to : [i*tc+(tc/2),j*tc+tc], // x, y : Coordinates
         steps : [
             color(matrice[i][j][6][0],matrice[i][j][6][1],matrice[i][j][6][2]),
             color(matrice[i][j+1][8][0],matrice[i][j+1][8][1],matrice[i][j+1][8][2])
             //color(255)
           ] // Array of p5.color objects or arrays containing [p5.color Object, Color Stop (0 to 1)]
-    });} else {
-      fill(100)
-    }
+      });} else {
+        fill(100)
+      }
 
 
-      vertex(matrice[i][j][0].x+2,matrice[i][j][0].y,);
-      if(i+1>=nombrecarrer) {
+      vertex(matrice[i][j][0].x,matrice[i][j][0].y,);
+
         bezierVertex(
-          matrice[i][j][1].x, matrice[i][j][1].y,
-          matrice[i][j][2].x, matrice[i][j][2].y,
-          matrice[i][j][0].x+tc,matrice[0][j][0].y);
-          vertex(matrice[i][j][0].x+tc+1,matrice[0][j][0].y);
-          vertex(i*tc+tc,j*tc+tc)
-          vertex(i*tc,j*tc+tc);
-      } else {
-        bezierVertex(
-          matrice[i][j][1].x, matrice[i][j][1].y,
-          matrice[i][j][2].x, matrice[i][j][2].y,
-          matrice[i+1][j][0].x+1,matrice[i+1][j][0].y);
+          matrice[i][j][1].x, 
+          matrice[i][j][1].y,
+
+          matrice[i][j][2].x, 
+          matrice[i][j][2].y,
+          
+          (i+1>=Lcar)?(matrice[i][j][0].x+tc):(matrice[i+1][j][0].x+1),
+          (i+1>=Lcar)?(matrice[0][j][0].y):(matrice[i+1][j][0].y)
+          );
+
           vertex(i*tc+tc,j*tc+tc);
           vertex(i*tc,j*tc+tc);
-      }
+      
       endShape();
 
 
       //dessine la courbe
       noFill();
-      strokeWeight(5);
+      strokeWeight(3);
       stroke(matrice[i][j][6][0]+random(-5,5),matrice[i][j][6][1]+random(-5,5),matrice[i][j][6][2]+random(-5,5));
-      if(i+1>=nombrecarrer) {
+      if(i+1>=Lcar) {
         bezier(matrice[i][j][0].x+2,matrice[i][j][0].y,
           matrice[i][j][1].x, matrice[i][j][1].y,
           matrice[i][j][2].x, matrice[i][j][2].y,
           matrice[i][j][0].x+tc-2,matrice[0][j][0].y);
-          vertex(matrice[i][j][0].x+tc+1,matrice[0][j][0].y);
-          vertex(i*tc+tc,j*tc+tc)
-          vertex(i*tc,j*tc+tc);
       } else {
         bezier(matrice[i][j][0].x+2,matrice[i][j][0].y,
           matrice[i][j][1].x, matrice[i][j][1].y,
           matrice[i][j][2].x, matrice[i][j][2].y,
-          matrice[i+1][j][0].x+1,matrice[i+1][j][0].y);
-          vertex(i*tc+tc,j*tc+tc);
-          vertex(i*tc,j*tc+tc);
+          matrice[i+1][j][0].x-2,matrice[i+1][j][0].y);
       }
 
       fill(255)
@@ -177,31 +151,11 @@ function draw() {
 }
 
 function drawlines() {
-  for (let i = 0; i < nombrecarrer; i++) {
-    for (let j = 0; j < nombrecarrer; j++) {
+  for (let i = 0; i < Lcar; i++) {
+    for (let j = 0; j < Hcar; j++) {
       noStroke();
       fill(matrice[i][j][6][0],matrice[i][j][6][1],matrice[i][j][6][2]);
       square(i*tc, j*tc, tc+2);
-      //fill(255,0,0);
-      //ellipse(matrice[i][j][0].x,matrice[i][j][0].y, 10,10);
-
-      //fill(0,255,0);
-      //ellipse(matrice[i][j][1].x,matrice[i][j][1].y, 5,5);
-      //ellipse(matrice[i][j][2].x,matrice[i][j][2].y, 5,5);
-//
-      //if(i+1>=nombrecarrer) {
-      //  line(matrice[i][j][0].x,matrice[i][j][0].y,
-      //    matrice[i][j][0].x+tc,matrice[0][j][0].y);
-      //} else {
-      //  line(matrice[i][j][0].x,matrice[i][j][0].y,
-      //    matrice[i+1][j][0].x,matrice[i+1][j][0].y);
-      //}
-
-
-      //bezier(matrice[i][j][0].x,matrice[i][j][0].y,
-      //  matrice[i][j][1].y, matrice[i][j][1].y,
-      //  matrice[i][j][2].y, matrice[i][j][2].y,
-      //  matrice[i+1][j][0].x,matrice[i+1][j][0].y,);
     }
   }
 }
