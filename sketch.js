@@ -1,4 +1,4 @@
-let Lcar = (window.innerWidth>850)?1:3; //nombre de carrer dans la longueur
+let Lcar = 1; //nombre de carrer dans la longueur
 let Hcar = 10
 let tc = window.innerWidth/Lcar;
 let matrice = Array.from(Array(Hcar), () => new Array(Lcar));
