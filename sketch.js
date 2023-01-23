@@ -1,8 +1,8 @@
-let Lcar = (window.innerWidth>850)?5:3; //nombre de carrer dans la longueur
+let Lcar = (window.innerWidth>850)?1:3; //nombre de carrer dans la longueur
 let Hcar = 10
 let tc = window.innerWidth/Lcar;
 let matrice = Array.from(Array(Hcar), () => new Array(Lcar));
-let force = 0.004;
+let force = 0.008;
 let tick = 0;
 
 function test(){window.location.reload();}
@@ -65,7 +65,7 @@ function regenrdm(){ //regen un tableau aleatoirement
 
 function draw() {
   tick++;
-  if(tick>(Lcar*Hcar)/5){
+  if(tick>50){
     tick = 0;
     regenrdm();
   }
